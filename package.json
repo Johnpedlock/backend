@@ -2,7 +2,7 @@
   "name": "glorious-manifestation-ministry",
   "private": true,
   "scripts": {
-    "build": "cd apps/frontend && npm install && npm run build",
-    "start": "cd apps/frontend && npm run start"
+    "render-build": "cd apps/frontend && npm install && npm run build",
+    "render-start": "cd apps/frontend && npm run start"
   }
 }
