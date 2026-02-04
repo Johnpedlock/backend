@@ -1,83 +1,61 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { PaymentStatus, ApprovalStatus } from '@prisma/client';
 
 @Injectable()
 export class PaymentService {
   constructor(private readonly prisma: PrismaService) {}
 
-  // Start payment (just records intent for now)
-  async initiatePayment(body: any) {
-    const { email } = body;
+  private generateSetNumber(): number {
+    return Math.floor(Math.random() * 1000000);
+  }
 
-    if (!email) {
-      throw new Error('Email is required to initiate payment');
-    }
-
+  async initiatePayment(body: { email: string }) {
     const record = await this.prisma.programRegistration.findUnique({
-      where: { email },
+      where: { email: body.email },
     });
 
     if (!record) {
-      throw new Error('No registration found with this email');
+      throw new Error('Record not found');
     }
 
     return {
-      message: 'Payment initiated',
       email: record.email,
-      amount: 30000,
-      currency: 'NGN',
-      paymentLink: 'https://flutterwave.com/pay/wzdsc2vvw3i8',
+      paymentStatus: record.paymentStatus,
     };
   }
 
-  // Manual admin confirmation of payment
-  async confirmPayment(body: any) {
-    const { email } = body;
-
-    if (!email) {
-      throw new Error('Email is required to confirm payment');
-    }
-
+  async confirmPayment(body: { email: string }) {
     const updated = await this.prisma.programRegistration.update({
-      where: { email },
+      where: { email: body.email },
       data: {
-        paymentStatus: PaymentStatus.PAID,
-        approvalStatus: ApprovalStatus.APPROVED,
-        approvedAt: new Date(),
+        paymentStatus: 'PAID',
+        approvalStatus: 'APPROVED',
         setNumber: this.generateSetNumber(),
       },
     });
 
     return {
-      message: 'Payment confirmed successfully',
       email: updated.email,
+      paymentStatus: updated.paymentStatus,
+      approvalStatus: updated.approvalStatus,
       setNumber: updated.setNumber,
     };
   }
 
-  // Check status by email
   async checkStatus(email: string) {
     const record = await this.prisma.programRegistration.findUnique({
       where: { email },
     });
 
     if (!record) {
-      return { found: false };
+      throw new Error('Record not found');
     }
 
     return {
-      found: true,
-      fullName: record.fullName,
       email: record.email,
       paymentStatus: record.paymentStatus,
       approvalStatus: record.approvalStatus,
       setNumber: record.setNumber,
     };
-  }
-
-  private generateSetNumber(): string {
-    const random = Math.floor(100000 + Math.random() * 900000);
-    return `GMM-${random}`;
   }
 }
