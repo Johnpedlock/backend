@@ -1,51 +1,35 @@
-import { Controller, Post, Body, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Body } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
-@Controller('admin')
+@Controller('admin/manual')
 export class AdminManualController {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  @Post('confirm-payment')
-  async confirmPayment(@Body() body: { email: string }) {
-    const { email } = body;
-
-    if (!email) {
-      throw new BadRequestException('Email is required');
-    }
-
+  @Post('approve')
+  async approve(
+    @Body('email') email: string,
+    @Body('setNumber') setNumber: number
+  ) {
     const record = await this.prisma.programRegistration.findUnique({
       where: { email },
     });
 
     if (!record) {
-      throw new BadRequestException('Registration not found');
+      throw new Error('Record not found');
     }
-
-    if (record.paymentStatus === 'PAID') {
-      return {
-        message: 'This student is already confirmed',
-        setNumber: record.setNumber,
-      };
-    }
-
-    const setNumber = `GMM-${new Date().getFullYear()}-${Math.floor(
-      1000 + Math.random() * 9000,
-    )}`;
 
     const updated = await this.prisma.programRegistration.update({
-      where: { id: record.id },
+      where: { email },
       data: {
-        paymentStatus: 'PAID',
+        setNumber: Number(setNumber),
         approvalStatus: 'APPROVED',
         approvedAt: new Date(),
-        setNumber,
       },
     });
 
     return {
-      message: 'Payment confirmed successfully',
-      fullName: updated.fullName,
       email: updated.email,
+      fullName: updated.fullName,
       setNumber: updated.setNumber,
     };
   }

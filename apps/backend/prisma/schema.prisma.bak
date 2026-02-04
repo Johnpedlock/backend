@@ -1,0 +1,44 @@
+// ==============================
+// Datasource & Generator
+// ==============================
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ==============================
+// Enums
+// ==============================
+
+enum PaymentStatus {
+  PENDING
+  PAID
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// ==============================
+// Program Registration Model
+// ==============================
+
+model ProgramRegistration {
+  id             String         @id @default(cuid())
+  createdAt      DateTime       @default(now())
+  fullName       String
+  email          String         @unique
+  phone          String
+  ministry       String
+  paymentStatus  PaymentStatus  @default(PENDING)
+  approvalStatus ApprovalStatus @default(PENDING)
+  approvedAt     DateTime?
+  setNumber      String?
+}
