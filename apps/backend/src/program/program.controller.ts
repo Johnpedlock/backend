@@ -18,7 +18,10 @@ export class ProgramController {
     @Body() data: any,
     @UploadedFile() file?: any
   ) {
-    return this.programService.register(data, file);
+    const email = data?.email;
+    const fullName = data?.fullName;
+
+    return this.programService.register(email, fullName);
   }
 
   @Post('status')
