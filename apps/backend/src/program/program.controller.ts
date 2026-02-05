@@ -18,19 +18,33 @@ export class ProgramController {
     @Body() data: any,
     @UploadedFile() file?: any
   ) {
-    const email = data?.email;
-    const fullName = data?.fullName;
-
-    return this.programService.register(email, fullName);
+    try {
+      const email = data?.email;
+      const fullName = data?.fullName;
+      return await this.programService.register(email, fullName);
+    } catch (error) {
+      console.error('REGISTER ERROR:', error);
+      throw error;
+    }
   }
 
   @Post('status')
   async checkStatus(@Body('email') email: string) {
-    return this.programService.getStatus(email);
+    try {
+      return await this.programService.getStatus(email);
+    } catch (error) {
+      console.error('STATUS ERROR:', error);
+      throw error;
+    }
   }
 
   @Post('admin/confirm-payment')
   async confirmPayment(@Body('email') email: string) {
-    return this.programService.confirmPayment(email);
+    try {
+      return await this.programService.confirmPayment(email);
+    } catch (error) {
+      console.error('CONFIRM ERROR:', error);
+      throw error;
+    }
   }
 }
