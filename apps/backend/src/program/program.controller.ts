@@ -10,8 +10,8 @@ export class ProgramController {
     const email = body?.email;
     const fullName = body?.fullName;
 
-    if (typeof email !== 'string' || typeof fullName !== 'string') {
-      throw new Error('Invalid request body. email and fullName must be strings.');
+    if (!email || !fullName) {
+      throw new Error('email and fullName are required');
     }
 
     return this.programService.register(email, fullName);
@@ -19,23 +19,11 @@ export class ProgramController {
 
   @Post('status')
   async checkStatus(@Body() body: any) {
-    const email = body?.email;
-
-    if (typeof email !== 'string') {
-      throw new Error('Invalid request body. email must be string.');
-    }
-
-    return this.programService.getStatus(email);
+    return this.programService.getStatus(body?.email);
   }
 
   @Post('admin/confirm-payment')
   async confirmPayment(@Body() body: any) {
-    const email = body?.email;
-
-    if (typeof email !== 'string') {
-      throw new Error('Invalid request body. email must be string.');
-    }
-
-    return this.programService.confirmPayment(email);
+    return this.programService.confirmPayment(body?.email);
   }
 }
