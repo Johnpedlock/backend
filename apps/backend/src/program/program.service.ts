@@ -14,14 +14,12 @@ export class ProgramService {
       where: { email },
     });
 
-    if (existing) {
-      return existing;
-    }
+    if (existing) return existing;
 
     return this.prisma.programRegistration.create({
       data: {
-        email: email,
-        fullName: fullName,
+        email: String(email),
+        fullName: String(fullName),
         paymentStatus: 'PENDING',
         approvalStatus: 'PENDING',
       },
@@ -29,9 +27,7 @@ export class ProgramService {
   }
 
   async getStatus(email: string) {
-    if (!email) {
-      throw new Error('Email is required');
-    }
+    if (!email) throw new Error('Email is required');
 
     const record = await this.prisma.programRegistration.findUnique({
       where: { email },
@@ -54,9 +50,7 @@ export class ProgramService {
       where: { email },
     });
 
-    if (!record) {
-      throw new Error('Registration not found');
-    }
+    if (!record) throw new Error('Registration not found');
 
     return this.prisma.programRegistration.update({
       where: { email },
