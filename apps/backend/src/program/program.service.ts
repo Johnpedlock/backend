@@ -5,7 +5,38 @@ import { PrismaService } from '../prisma/prisma.service';
 export class ProgramService {
   constructor(private prisma: PrismaService) {}
 
-  async register(email: string, fullName: string) {
+  private normalizeEmail(input: any): string | null {
+    if (!input) return null;
+
+    if (typeof input === 'string') return input;
+
+    if (typeof input === 'object') {
+      if (typeof input.email === 'string') return input.email;
+    }
+
+    return null;
+  }
+
+  private normalizeName(input: any): string | null {
+    if (!input) return null;
+
+    if (typeof input === 'string') return input;
+
+    if (typeof input === 'object') {
+      if (typeof input.fullName === 'string') return input.fullName;
+    }
+
+    return null;
+  }
+
+  async register(emailInput: any, fullNameInput: any) {
+    const email = this.normalizeEmail(emailInput);
+    const fullName = this.normalizeName(fullNameInput);
+
+    if (!email || !fullName) {
+      throw new Error('Invalid email/fullName format');
+    }
+
     const existing = await this.prisma.programRegistration.findUnique({
       where: { email },
     });
@@ -14,15 +45,18 @@ export class ProgramService {
 
     return this.prisma.programRegistration.create({
       data: {
-        email: email,
-        fullName: fullName,
+        email,
+        fullName,
         paymentStatus: 'PENDING',
         approvalStatus: 'PENDING',
       },
     });
   }
 
-  async getStatus(email: string) {
+  async getStatus(emailInput: any) {
+    const email = this.normalizeEmail(emailInput);
+    if (!email) throw new Error('Invalid email');
+
     const record = await this.prisma.programRegistration.findUnique({
       where: { email },
     });
@@ -39,7 +73,10 @@ export class ProgramService {
     return record;
   }
 
-  async confirmPayment(email: string) {
+  async confirmPayment(emailInput: any) {
+    const email = this.normalizeEmail(emailInput);
+    if (!email) throw new Error('Invalid email');
+
     return this.prisma.programRegistration.update({
       where: { email },
       data: {
