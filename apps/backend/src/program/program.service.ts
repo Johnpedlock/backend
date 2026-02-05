@@ -6,10 +6,6 @@ export class ProgramService {
   constructor(private prisma: PrismaService) {}
 
   async register(email: string, fullName: string) {
-    if (!email || !fullName) {
-      throw new Error('Email and fullName are required');
-    }
-
     const existing = await this.prisma.programRegistration.findUnique({
       where: { email },
     });
@@ -18,8 +14,8 @@ export class ProgramService {
 
     return this.prisma.programRegistration.create({
       data: {
-        email: String(email),
-        fullName: String(fullName),
+        email: email,
+        fullName: fullName,
         paymentStatus: 'PENDING',
         approvalStatus: 'PENDING',
       },
@@ -27,8 +23,6 @@ export class ProgramService {
   }
 
   async getStatus(email: string) {
-    if (!email) throw new Error('Email is required');
-
     const record = await this.prisma.programRegistration.findUnique({
       where: { email },
     });
@@ -46,12 +40,6 @@ export class ProgramService {
   }
 
   async confirmPayment(email: string) {
-    const record = await this.prisma.programRegistration.findUnique({
-      where: { email },
-    });
-
-    if (!record) throw new Error('Registration not found');
-
     return this.prisma.programRegistration.update({
       where: { email },
       data: {

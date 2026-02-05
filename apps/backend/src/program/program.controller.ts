@@ -1,11 +1,4 @@
-import {
-  Controller,
-  Post,
-  Body,
-  UploadedFile,
-  UseInterceptors,
-} from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { Controller, Post, Body } from '@nestjs/common';
 import { ProgramService } from './program.service';
 
 @Controller('program')
@@ -13,21 +6,36 @@ export class ProgramController {
   constructor(private readonly programService: ProgramService) {}
 
   @Post('register')
-  @UseInterceptors(FileInterceptor('photo'))
-  async register(@Body() data: any) {
-    const email = typeof data?.email === 'string' ? data.email : data?.email?.email;
-    const fullName = typeof data?.fullName === 'string' ? data.fullName : data?.email?.fullName;
+  async register(@Body() body: any) {
+    const email = body?.email;
+    const fullName = body?.fullName;
+
+    if (typeof email !== 'string' || typeof fullName !== 'string') {
+      throw new Error('Invalid request body. email and fullName must be strings.');
+    }
 
     return this.programService.register(email, fullName);
   }
 
   @Post('status')
-  async checkStatus(@Body('email') email: string) {
+  async checkStatus(@Body() body: any) {
+    const email = body?.email;
+
+    if (typeof email !== 'string') {
+      throw new Error('Invalid request body. email must be string.');
+    }
+
     return this.programService.getStatus(email);
   }
 
   @Post('admin/confirm-payment')
-  async confirmPayment(@Body('email') email: string) {
+  async confirmPayment(@Body() body: any) {
+    const email = body?.email;
+
+    if (typeof email !== 'string') {
+      throw new Error('Invalid request body. email must be string.');
+    }
+
     return this.programService.confirmPayment(email);
   }
 }
