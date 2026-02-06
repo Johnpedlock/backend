@@ -1,16 +1,23 @@
-import { Controller, Post, Body, UploadedFile, UseInterceptors } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { Controller, Post, Body } from '@nestjs/common';
 import { ProgramService } from './program.service';
-import { RegisterDto } from './dto/register.dto';
 
 @Controller('program')
 export class ProgramController {
   constructor(private readonly programService: ProgramService) {}
 
   @Post('register')
-  @UseInterceptors(FileInterceptor('photo'))
-  async register(@Body() dto: RegisterDto, @UploadedFile() file?: any) {
-    return this.programService.register(dto.email, dto.fullName);
+  async register(@Body() body: any) {
+    const email = body?.email;
+    const fullName = body?.fullName;
+
+    console.log('BODY:', body);
+    console.log('EMAIL:', email, 'TYPE:', typeof email);
+
+    if (typeof email !== 'string' || typeof fullName !== 'string') {
+      throw new Error('Invalid request body. Must be flat JSON.');
+    }
+
+    return this.programService.register(email, fullName);
   }
 
   @Post('status')
