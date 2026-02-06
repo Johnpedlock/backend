@@ -5,36 +5,9 @@ import { PrismaService } from '../prisma/prisma.service';
 export class ProgramService {
   constructor(private prisma: PrismaService) {}
 
-  private normalizeEmail(input: any): string | null {
-    if (!input) return null;
-
-    if (typeof input === 'string') return input;
-
-    if (typeof input === 'object') {
-      if (typeof input.email === 'string') return input.email;
-    }
-
-    return null;
-  }
-
-  private normalizeName(input: any): string | null {
-    if (!input) return null;
-
-    if (typeof input === 'string') return input;
-
-    if (typeof input === 'object') {
-      if (typeof input.fullName === 'string') return input.fullName;
-    }
-
-    return null;
-  }
-
-  async register(emailInput: any, fullNameInput: any) {
-    const email = this.normalizeEmail(emailInput);
-    const fullName = this.normalizeName(fullNameInput);
-
+  async register(email: string, fullName: string) {
     if (!email || !fullName) {
-      throw new Error('Invalid email/fullName format');
+      throw new Error('Email and fullName required');
     }
 
     const existing = await this.prisma.programRegistration.findUnique({
@@ -53,10 +26,7 @@ export class ProgramService {
     });
   }
 
-  async getStatus(emailInput: any) {
-    const email = this.normalizeEmail(emailInput);
-    if (!email) throw new Error('Invalid email');
-
+  async getStatus(email: string) {
     const record = await this.prisma.programRegistration.findUnique({
       where: { email },
     });
@@ -71,19 +41,5 @@ export class ProgramService {
     }
 
     return record;
-  }
-
-  async confirmPayment(emailInput: any) {
-    const email = this.normalizeEmail(emailInput);
-    if (!email) throw new Error('Invalid email');
-
-    return this.prisma.programRegistration.update({
-      where: { email },
-      data: {
-        paymentStatus: 'PAID',
-        approvalStatus: 'APPROVED',
-        approvedAt: new Date(),
-      },
-    });
   }
 }
