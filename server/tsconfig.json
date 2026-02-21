@@ -1,17 +1,18 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "target": "es2020",
-    "moduleResolution": "node",
-    "outDir": "dist",
-    "rootDir": "src",
-    "strict": true,
-    "esModuleInterop": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "skipLibCheck": true
+    "module": "commonjs",                  // Node-style modules
+    "target": "es2020",                    // Modern JS
+    "moduleResolution": "node",            // Resolve modules like Node
+    "outDir": "dist",                      // Compiled files go here
+    "rootDir": "src",                      // Source files location
+    "strict": true,                        // Enable strict type checks
+    "esModuleInterop": true,               // For import compatibility
+    "experimentalDecorators": true,        // For NestJS decorators
+    "emitDecoratorMetadata": true,         // NestJS metadata
+    "skipLibCheck": true,                  // Skip type checks for libraries
+    "types": ["node"]                      // Add Node.js types for process, Buffer, etc.
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*"],                 // Include all source files
   "exclude": [
     "node_modules",
     "dist",
