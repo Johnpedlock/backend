@@ -1,23 +1,26 @@
-// src/main.ts
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // ✅ Global prefix so all routes start with /api
+  // ✅ Global prefix for all API routes
   app.setGlobalPrefix('api');
 
-  // Enable CORS for frontend
+  // ✅ Enable CORS for your frontend(s)
   const allowedOrigins = [
-    'http://localhost:3000',
-    'https://glorious-manifestation-ministry-owe-ten.vercel.app',
+    'http://localhost:3000', // local dev
+    'https://glorious-manifestation-ministry-owe-ten.vercel.app', // live frontend
   ];
+
   app.enableCors({
     origin: (origin, callback) => {
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin)) callback(null, true);
-      else callback(new Error('Not allowed by CORS'));
+      if (!origin) return callback(null, true); // allow curl, Postman
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
     },
     credentials: true,
   });
